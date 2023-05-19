@@ -280,6 +280,9 @@ static void CreateMove()
                 break;
             case 6: // JEERS
                 g_IEngine->ServerCmd("voicemenu 2 3");
+                break;
+            case 6: // DISPENSER
+                g_IEngine->ServerCmd("voicemenu 1 4");
             }
         }
     }
