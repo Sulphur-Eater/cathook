@@ -281,8 +281,24 @@ static void CreateMove()
             case 6: // JEERS
                 g_IEngine->ServerCmd("voicemenu 2 3");
                 break;
-            case 7: // DISPENSER
+            case 7: // DISPENSER HERE
                 g_IEngine->ServerCmd("voicemenu 1 4");
+                break;
+            case 8: // POSITIVE
+                g_IEngine->ServerCmd("voicemenu 2 4");
+                break;
+            case 9: // NEGITAVE
+                g_IEngine->ServerCmd("voicemenu 2 5");
+                break;
+            case 10: // GO GO GO
+                g_IEngine->ServerCmd("voicemenu 0 2");
+                break;
+            case 11: // GEAR UP
+                g_IEngine->ServerCmd("voicemenu 0 3");
+                break;
+            case 12: // SENTRY AHED
+                g_IEngine->ServerCmd("voicemenu 1 2");
+                break;
             }
         }
     }
