@@ -127,7 +127,6 @@ void dispatchUserMessage(bf_read &buffer, int type)
             }
             else if (*vote_kicky && !friendly_kicked)
             {
-                vote_command = { strfmt("vote %d option1", vote_id).get(), 1000u + (rand() % 5) };
                 vote_command.timer.update();
             }
         }
