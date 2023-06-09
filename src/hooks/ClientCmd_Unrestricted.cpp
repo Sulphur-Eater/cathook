@@ -7,7 +7,7 @@ namespace hooked_methods
 {
 DEFINE_HOOKED_METHOD(ClientCmd_Unrestricted, void, IVEngineClient013 *_this, const char *command)
 {
-    if (ipc::peer && hacks::catbot::abandon_if_ipc_bots_gte)
+    if (ipc::peer && *hacks::catbot::abandon_if_ipc_bots_gte)
     {
         std::string command_str(command);
 
@@ -21,7 +21,7 @@ DEFINE_HOOKED_METHOD(ClientCmd_Unrestricted, void, IVEngineClient013 *_this, con
 
                 auto &peer_mem = ipc::peer->memory;
 
-                for (unsigned int i = 0; i < cat_ipc::max_peers; i++)
+                for (unsigned int i = 0; i < cat_ipc::max_peers; ++i)
                 {
                     if (i != ipc::peer->client_id && !peer_mem->peer_data[i].free && peer_mem->peer_user_data[i].connected && peer_mem->peer_user_data[i].ingame.server)
                     {
@@ -32,7 +32,7 @@ DEFINE_HOOKED_METHOD(ClientCmd_Unrestricted, void, IVEngineClient013 *_this, con
                 }
             }
 
-            if (count_ipc > 0 && count_ipc >= (int) hacks::catbot::abandon_if_ipc_bots_gte)
+            if (count_ipc > 0 && count_ipc >= *hacks::catbot::abandon_if_ipc_bots_gte)
                 return;
         }
     }
