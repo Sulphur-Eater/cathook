@@ -120,7 +120,7 @@ DEFINE_HOOKED_METHOD(DispatchUserMessage, bool, void *this_, int type, bf_read &
         break;
     }
     case 12:
-        if (hacks::catbot::anti_motd && hacks::catbot::catbotmode)
+        if (*hacks::catbot::anti_motd && *hacks::catbot::catbotmode)
         {
             data = std::string(buf_data);
             if (data.find("class_") != std::string::npos)
