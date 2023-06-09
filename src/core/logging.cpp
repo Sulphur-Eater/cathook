@@ -29,9 +29,9 @@ void logging::Initialize()
 }
 #endif
 
+#if ENABLE_LOGGING
 static inline void Log(const char *result, bool file_only)
 {
-#if ENABLE_LOGGING
     if (!logging::handle.is_open())
         logging::Initialize();
     time_t current_time;
@@ -49,8 +49,8 @@ static inline void Log(const char *result, bool file_only)
     if (!hack::shutdown && !file_only && *log_to_console)
         g_ICvar->ConsoleColorPrintf(MENU_COLOR, "CAT: %s\n", result);
 #endif
-#endif
 }
+#endif
 
 void logging::Info(const char *fmt, ...)
 {
