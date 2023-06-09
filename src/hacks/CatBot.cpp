@@ -7,14 +7,14 @@
 
 #include <random>
 #include <settings/Bool.hpp>
-#include <utility>
+//#include <utility>
 #include "CatBot.hpp"
 #include "common.hpp"
 #include "hack.hpp"
 #include "PlayerTools.hpp"
-#include "e8call.hpp"
+//#include "e8call.hpp"
 #include "SettingCommands.hpp"
-#include "glob.h"
+//#include "glob.h"
 
 namespace hacks::catbot
 {
@@ -35,7 +35,7 @@ static settings::Boolean votekick_rage_only{ "cat-bot.votekicks.rage-only", "fal
 static settings::Boolean autoReport{ "cat-bot.autoreport", "true" };
 static settings::Boolean autovote_map{ "cat-bot.autovote-map", "true" };
 
-static settings::Boolean mvm_autoupgrade{ "mvm.autoupgrade", "false" };
+//static settings::Boolean mvm_autoupgrade{ "mvm.autoupgrade", "false" };
 
 settings::Boolean catbotmode{ "cat-bot.enable", "false" };
 settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
@@ -43,7 +43,7 @@ settings::Boolean anti_motd{ "cat-bot.anti-motd", "false" };
 // These are used for randomly loading a config on respawn for the bots
 
 // Master switch
-static settings::Boolean enable_reload{ "cat-bot.autoload.enable", "false" };
+/*static settings::Boolean enable_reload{ "cat-bot.autoload.enable", "false" };
 
 // Misc Settings
 static settings::Float reload_chance{ "cat-bot.autoload.chance", "100" };
@@ -59,11 +59,6 @@ static settings::String conf3{ "cat-bot.autoload.conf3", "" };
 static settings::Boolean conf1_enable{ "cat-bot.autoload.conf1.enable", "false" };
 static settings::Boolean conf2_enable{ "cat-bot.autoload.conf2.enable", "false" };
 static settings::Boolean conf3_enable{ "cat-bot.autoload.conf3.enable", "false" };
-
-struct catbot_user_state
-{
-    int treacherous_kills{ 0 };
-};
 
 int globerr(const char *path, int eerrno)
 {
@@ -86,7 +81,6 @@ std::vector<std::string> config_list(const std::string &in)
     if (!hasEnding(complete_in, ".conf"))
         complete_in = complete_in + ".conf";
     std::vector<std::string> config_vec;
-    size_t i;
     int flags = 0;
     glob_t results;
     int ret;
@@ -116,24 +110,25 @@ std::vector<std::string> config_list(const std::string &in)
         return config_vec;
     }
 
-    for (i = 0; i < results.gl_pathc; ++i)
+    for (size_t i = 0; i < results.gl_pathc; ++i)
         // /configs/ is 9 extra chars I have to remove
         config_vec.push_back(std::string(results.gl_pathv[i]).substr(paths::getDataPath().length() + 9));
 
     globfree(&results);
     return config_vec;
 }
+
 static std::string blacklist;
 static int deaths = 0;
 void on_killed_by(int userid)
 {
-    if (enable_reload)
+    if (*enable_reload)
     {
         // Should we load yet?
         bool should_load = false;
 
         // Default to chance if no deaths are set
-        if (!reload_deaths)
+        if (!*reload_deaths)
         {
             // RNG
             if (UniformRandomInt(0, 99) < *reload_chance)
@@ -150,26 +145,26 @@ void on_killed_by(int userid)
             // Candidates for loading
             std::vector<std::string> temp_candidates;
             std::vector<std::string> load_candidates;
-            if (conf1_enable)
+            if (*conf1_enable)
             {
                 temp_candidates = config_list(*conf1);
                 for (auto &i : temp_candidates)
                     load_candidates.push_back(i);
             }
-            if (conf2_enable)
+            if (*conf2_enable)
             {
                 temp_candidates = config_list(*conf2);
                 for (auto &i : temp_candidates)
                     load_candidates.push_back(i);
             }
-            if (conf3_enable)
+            if (*conf3_enable)
             {
                 temp_candidates = config_list(*conf3);
                 for (auto &i : temp_candidates)
                     load_candidates.push_back(i);
             }
             // Remove blacklisted
-            if (!load_same_config)
+            if (!*load_same_config)
                 for (auto it = load_candidates.begin(); it != load_candidates.end();)
                 {
                     if (*it == blacklist)
@@ -184,12 +179,12 @@ void on_killed_by(int userid)
                 to_load              = to_load.substr(0, to_load.size() - 5);
                 std::string load_cmd = "cat_load " + to_load;
                 g_IEngine->ClientCmd_Unrestricted(load_cmd.c_str());
-                if (!load_same_config)
+                if (!*load_same_config)
                     blacklist = to_load;
             }
         }
     }
-}
+}*/
 
 void do_random_votekick()
 {
@@ -208,7 +203,7 @@ void do_random_votekick()
         if (info.friendsID == local_info.friendsID)
             continue;
         auto &pl = playerlist::AccessData(info.friendsID);
-        if (votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
+        if (*votekick_rage_only && pl.state != playerlist::k_EState::RAGE)
             continue;
         if (pl.state != playerlist::k_EState::RAGE && pl.state != playerlist::k_EState::DEFAULT)
             continue;
@@ -238,8 +233,9 @@ int GetMvmCredits()
 }
 
 static CatCommand debug_money("debug_mvmmoney", "Print MVM Money", []() { logging::Info("%d", GetMvmCredits()); });
+
 // Store information
-struct Posinfo
+/*struct Posinfo
 {
     float x{};
     float y{};
@@ -254,6 +250,7 @@ struct Posinfo
     }
     Posinfo() = default;
 };
+
 struct Upgradeinfo
 {
     int id;
@@ -272,10 +269,10 @@ struct Upgradeinfo
         priority_falloff = _priority_falloff;
     }
 };
-static std::vector<Upgradeinfo> upgrade_list;
 
+static std::vector<Upgradeinfo> upgrade_list;
 static bool inited_upgrades = false;
-// Pick a upgrade
+// Pick an upgrade
 Upgradeinfo PickUpgrade()
 {
     if (!inited_upgrades)
@@ -328,10 +325,11 @@ Upgradeinfo PickUpgrade()
         choosen_element->priority -= choosen_element->priority_falloff;
         return *choosen_element;
     }
-}
-static std::vector<Posinfo> spot_list;
+}*/
+
+/*static std::vector<Posinfo> spot_list;
 // Upgrade Navigation
-/*void NavUpgrade()
+void NavUpgrade()
 {
     std::string lvlname = g_IEngine->GetLevelName();
     std::vector<Posinfo> potential_spots{};
@@ -522,7 +520,7 @@ class CatBotEventListener2 : public IGameEventListener2
     void FireGameEvent(IGameEvent *) override
     {
         // vote for current map if catbot mode and autovote is on
-        if (catbotmode && autovote_map)
+        if (*catbotmode && *autovote_map)
             g_IEngine->ServerCmd("next_map_vote 0");
     }
 };
@@ -534,16 +532,15 @@ CatBotEventListener2 &listener2()
 }
 
 Timer timer_votekicks{};
-static Timer timer_catbot_list{};
 static Timer timer_abandon{};
 
 static int count_ipc = 0;
-static std::vector<unsigned> ipc_list{ 0 };
+static std::vector<unsigned int> ipc_list{ 0 };
 
 static bool waiting_for_quit_bool{ false };
 static Timer waiting_for_quit_timer{};
 
-static std::vector<unsigned> ipc_blacklist{};
+static std::vector<unsigned int> ipc_blacklist{};
 
 #if ENABLE_IPC
 void update_ipc_data(ipc::user_data_s &data)
@@ -567,7 +564,7 @@ void reportall()
         patch.Patch();
         patched_report = true;
     }
-    for (const auto &ent: entity_cache::player_cache)
+    for (const auto &ent : entity_cache::player_cache)
     {
         // We only want a nullptr check since dormant entities are still on the
         // server
@@ -589,6 +586,7 @@ void reportall()
 }
 
 CatCommand report("report_all", "Report all players", []() { reportall(); });
+
 CatCommand report_uid("report_steamid", "Report with steamid",
                       [](const CCommand &args)
                       {
@@ -636,22 +634,22 @@ void smart_crouch()
     static bool crouch = false;
     if (crouchcdr.test_and_set(2000))
     {
-        for (const auto &ent: entity_cache::player_cache)
+        for (const auto &ent : entity_cache::player_cache)
         {
-            if (CE_BAD(ent) || ent->m_Type() != ENTITY_PLAYER || ent->m_iTeam() == LOCAL_E->m_iTeam() || !(ent->hitboxes.GetHitbox(0)) || !(ent->m_bAlivePlayer()) || !player_tools::shouldTarget(ent))
+            if (CE_BAD(ent) || ent->m_Type() != ENTITY_PLAYER || ent->m_iTeam() == LOCAL_E->m_iTeam() || !ent->hitboxes.GetHitbox(0) || !ent->m_bAlivePlayer() || !player_tools::shouldTarget(ent))
                 continue;
             bool failedvis = false;
-            for (int j = 0; j < 18; j++)
-                if (IsVectorVisible(g_pLocalPlayer->v_Eye, ent->hitboxes.GetHitbox(j)->center))
+            for (uint8_t i = 0; i < 18; ++i)
+                if (IsVectorVisible(g_pLocalPlayer->v_Eye, ent->hitboxes.GetHitbox(i)->center))
                     failedvis = true;
             if (failedvis)
                 continue;
-            for (int j = 0; j < 18; j++)
+            for (uint8_t i = 0; i < 18; ++i)
             {
-                if (!LOCAL_E->hitboxes.GetHitbox(j))
+                if (!LOCAL_E->hitboxes.GetHitbox(i))
                     continue;
                 // Check if they see my hitboxes
-                if (!IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->center) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->min) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(j)->max))
+                if (!IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(i)->center) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(i)->min) && !IsVectorVisible(ent->hitboxes.GetHitbox(0)->center, LOCAL_E->hitboxes.GetHitbox(i)->max))
                     continue;
                 foundtar = true;
                 crouch   = true;
@@ -667,17 +665,18 @@ void smart_crouch()
 CatCommand print_ammo("debug_print_ammo", "debug",
                       []()
                       {
-                          if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer() || CE_BAD(LOCAL_W))
+                          if (CE_BAD(LOCAL_E) || !g_pLocalPlayer->alive || CE_BAD(LOCAL_W))
                               return;
                           logging::Info("Current slot: %d", re::C_BaseCombatWeapon::GetSlot(RAW_ENT(LOCAL_W)));
-                          for (int i = 0; i < 10; ++i)
+                          for (uint8_t i = 0; i < 10; ++i)
                               logging::Info("Ammo Table %d: %d", i, CE_INT(LOCAL_E, netvar.m_iAmmo + i * 4));
                       });
+
 static Timer disguise{};
 static Timer report_timer{};
 /*static std::string health = "Health: 0/0";
-static std::string ammo   = "Ammo: 0/0";*/
-static int max_ammo;
+static std::string ammo   = "Ammo: 0/0";
+static int max_ammo;*/
 static CachedEntity *local_w;
 // TODO: add more stuffs
 static void cm()
@@ -685,22 +684,23 @@ static void cm()
     if (!*catbotmode)
         return;
 
-    if (CE_GOOD(LOCAL_E))
+    /*if (CE_GOOD(LOCAL_E))
     {
         if (LOCAL_W != local_w)
         {
             local_w  = LOCAL_W;
             max_ammo = 0;
         }
-        /*float max_hp  = g_pPlayerResource->GetMaxHealth(LOCAL_E);
-        float curr_hp = CE_INT(LOCAL_E, netvar.iHealth);*/
-        int ammo0     = CE_INT(LOCAL_E, netvar.m_iClip2);
-        int ammo2     = CE_INT(LOCAL_E, netvar.m_iClip1);
+        float max_hp  = g_pPlayerResource->GetMaxHealth(LOCAL_E);
+        float curr_hp = CE_INT(LOCAL_E, netvar.iHealth);
+        int ammo0 = CE_INT(LOCAL_E, netvar.m_iClip2);
+        int ammo2 = CE_INT(LOCAL_E, netvar.m_iClip1);
         if (ammo0 + ammo2 > max_ammo)
             max_ammo = ammo0 + ammo2;
-        /*health = format("Health: ", curr_hp, "/", max_hp);
-        ammo   = format("Ammo: ", ammo0 + ammo2, "/", max_ammo);*/
-    }
+        health = format("Health: ", curr_hp, "/", max_hp);
+        ammo   = format("Ammo: ", ammo0 + ammo2, "/", max_ammo);
+    }*/
+
     if (g_Settings.bInvalid)
         return;
 
@@ -710,7 +710,6 @@ static void cm()
     if (*auto_crouch)
         smart_crouch();
 
-    //
     static const int classes[3]{ tf_spy, tf_sniper, tf_pyro };
     if (*auto_disguise && g_pPlayerResource->GetClass(LOCAL_E) == tf_spy && !IsPlayerDisguised(LOCAL_E) && disguise.test_and_set(3000))
     {
@@ -753,13 +752,13 @@ void update()
             }
         }
     }
-    if (!catbotmode)
+    if (!*catbotmode)
         return;
 
     if (CE_BAD(LOCAL_E))
         return;
 
-    if (LOCAL_E->m_bAlivePlayer())
+    if (g_pLocalPlayer->alive)
     {
         unstuck.update();
         unstucks = 0;
@@ -774,15 +773,15 @@ void update()
             hack::command_stack().emplace("autoteam; join_class sniper");
     }
 
-    if (micspam)
+    if (*micspam)
     {
-        if (micspam_on && micspam_on_timer.test_and_set(*micspam_on * 1000))
+        if (*micspam_on && micspam_on_timer.test_and_set(*micspam_on * 1000))
             g_IEngine->ClientCmd_Unrestricted("+voicerecord");
-        if (micspam_off && micspam_off_timer.test_and_set(*micspam_off * 1000))
+        if (*micspam_off && micspam_off_timer.test_and_set(*micspam_off * 1000))
             g_IEngine->ClientCmd_Unrestricted("-voicerecord");
     }
 
-    if (random_votekicks && timer_votekicks.test_and_set(5000))
+    if (*random_votekicks && timer_votekicks.test_and_set(5000))
         do_random_votekick();
     if (timer_abandon.test_and_set(2000) && level_init_timer.check(13000))
     {
@@ -790,7 +789,7 @@ void update()
         ipc_list.clear();
         int count_total = 0;
 
-        for (const auto &ent: entity_cache::player_cache)
+        for (const auto &ent : entity_cache::player_cache)
         {
             if (g_IEngine->GetLocalPlayer() == ent->m_IDX)
                 continue;
@@ -813,9 +812,9 @@ void update()
             }
         }
 
-        if (abandon_if_ipc_bots_gte)
+        if (*abandon_if_ipc_bots_gte)
         {
-            if (count_ipc >= int(abandon_if_ipc_bots_gte))
+            if (count_ipc >= *abandon_if_ipc_bots_gte)
             {
                 // Store local IPC Id and assign to the quit_id variable for later comparisions
                 unsigned local_ipcid = ipc::peer->client_id;
@@ -857,9 +856,7 @@ void update()
                     waiting_for_quit_bool = false;
                     ipc_blacklist.clear();
 
-                    logging::Info("Abandoning because there are %d local players "
-                                  "in game, and abandon_if_ipc_bots_gte is %d.",
-                                  count_ipc, int(abandon_if_ipc_bots_gte));
+                    logging::Info("Abandoning because there are %d local players in game, and abandon_if_ipc_bots_gte is %d.", count_ipc, *abandon_if_ipc_bots_gte);
                     tfmm::Abandon();
                     return;
                 }
@@ -890,24 +887,20 @@ void update()
                 ipc_blacklist.clear();
             }
         }
-        if (abandon_if_humans_lte)
+        if (*abandon_if_humans_lte)
         {
-            if (count_total - count_ipc <= int(abandon_if_humans_lte))
+            if (count_total - count_ipc <=  *abandon_if_humans_lte)
             {
-                logging::Info("Abandoning because there are %d non-bots in "
-                              "game, and abandon_if_humans_lte is %d.",
-                              count_total - count_ipc, int(abandon_if_humans_lte));
+                logging::Info("Abandoning because there are %d non-bots in game, and abandon_if_humans_lte is %d.", count_total - count_ipc, *abandon_if_humans_lte);
                 tfmm::Abandon();
                 return;
             }
         }
-        if (abandon_if_players_lte)
+        if (*abandon_if_players_lte)
         {
-            if (count_total <= int(abandon_if_players_lte))
+            if (count_total <= *abandon_if_players_lte)
             {
-                logging::Info("Abandoning because there are %d total players "
-                              "in game, and abandon_if_players_lte is %d.",
-                              count_total, int(abandon_if_players_lte));
+                logging::Info("Abandoning because there are %d total players in game, and abandon_if_players_lte is %d.", count_total, *abandon_if_players_lte);
                 tfmm::Abandon();
                 return;
             }
@@ -923,7 +916,7 @@ void init()
 
 void level_init()
 {
-    deaths = 0;
+//    deaths = 0;
     level_init_timer.update();
 }
 
@@ -938,7 +931,7 @@ static void draw()
 {
     if (!catbotmode || !anti_motd)
         return;
-    if (CE_BAD(LOCAL_E) || !LOCAL_E->m_bAlivePlayer())
+    if (CE_BAD(LOCAL_E) || !g_pLocalPlayer->alive)
         return;
     AddCenterString(health, colors::green);
     AddCenterString(ammo, colors::yellow);
@@ -952,9 +945,9 @@ static InitRoutine runinit(
         EC::Register(EC::CreateMove, update, "cm2_catbot", EC::average);
         EC::Register(EC::LevelInit, level_init, "levelinit_catbot", EC::average);
         EC::Register(EC::Shutdown, shutdown, "shutdown_catbot", EC::average);
-/*#if ENABLE_VISUALS
-        EC::Register(EC::Draw, draw, "draw_catbot", EC::average);
-#endif*/
+        /*#if ENABLE_VISUALS
+                EC::Register(EC::Draw, draw, "draw_catbot", EC::average);
+        #endif*/
         init();
     });
 } // namespace hacks::catbot
